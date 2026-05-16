@@ -30,7 +30,7 @@ const theme = {
 };
 
 export const metadata = {
-  title: "Shavlaji Seva Admin",
+  title: "Shree Dwarkadhish Sahayog Trust - Comprehensive Trust Management Solution",
   description: "A comprehensive trust management solution",
 };
 
