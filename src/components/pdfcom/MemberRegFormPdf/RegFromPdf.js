@@ -313,9 +313,15 @@ watermark: {
       letterSpacing: 0.2,
        marginBottom: 3,
     }
-});function formatToHundreds(num) {
-  return (num / 100).toFixed(2);
+});
+function formatNumber(num) {
+  if (num >= 10000) {
+    return (num / 1000).toFixed(3);
+  } else {
+    return (num / 100).toFixed(2);
+  }
 }
+
 
 const RegFormPdf = ({data, selectedProgram}) => {
   return (
@@ -482,7 +488,7 @@ const RegFormPdf = ({data, selectedProgram}) => {
               <View style={[styles.twoColumnRow,{width:'100%'}]}>
                 <View style={styles.halfField}>
                   <Text style={styles.label}>सदस्यता शुल्क:</Text>
-                  <Text style={styles.amountValue}>₹{formatToHundreds(data.joinFees)}/- {data.joinFeesDone?'':'बकाया'}</Text>
+                  <Text style={styles.amountValue}>₹{formatNumber(data.joinFees)}/- {data.joinFeesDone?'':'बकाया'}</Text>
                 </View>
                 <View style={styles.halfField}>
                   <Text style={styles.label}>योजना नाम:</Text>
@@ -531,7 +537,7 @@ const RegFormPdf = ({data, selectedProgram}) => {
 
               {/* Organization */}
               <View style={styles.footerBox}>
-                <Text style={styles.footerValue}>{TrsutData.trustPresident}</Text>
+                <Text style={styles.footerValue}>{TrsutData.trustPresident} , {TrsutData.contactPerson || '---'}</Text>
                 <Text style={styles.footerLabel}>संस्थापक</Text>
               </View>
             </View>

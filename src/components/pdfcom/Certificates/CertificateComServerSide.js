@@ -464,7 +464,7 @@ const CertificateServerSide = ({data,selectedProgram,fontPath}) => (
 
             {/* Right Side - Signature */}
             <View style={styles.rightFooter}>
-              <Text style={styles.footerValue}>{TrsutData.trustPresident || '---'}</Text>
+              <Text style={styles.footerValue}>{TrsutData.trustPresident} , {TrsutData.contactPerson || '---'}</Text>
               <Text style={styles.footerLabel}>संस्थापक</Text>
               {/* <Text style={styles.signatureText}>हस्ताक्षर</Text> */}
             </View>
