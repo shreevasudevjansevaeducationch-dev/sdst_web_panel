@@ -11,10 +11,7 @@ import {
 } from '@react-pdf/renderer';
 import NotoSansDevanagari from '@/app/api/helperfile/static/font/NotoSansDevanagari';
 import NotoSansDevanagariBold from '@/app/api/helperfile/static/font/NotoSansDevanagariBold';
-import logo from '@/app/api/helperfile/Images/logo';
-import krinshnaImage from '@/app/api/helperfile/Images/KrinshnaImage';
 import { TrsutData } from '@/lib/constentData';
-import semkariLogo from '@/app/api/helperfile/Images/semkariLogo';
 import { pdfColors } from '../../../lib/constentData';
 
 
@@ -32,7 +29,7 @@ Font.register({
     },
   ],
 });
-
+const fixHindiText = (text = '') => text.normalize('NFC');
 const styles = StyleSheet.create({
   page: {
     backgroundColor:pdfColors.bgColor,
@@ -288,9 +285,7 @@ logoImage: {
   }
 });
 
-const CertificateServerSide = ({data,selectedProgram,fontPath}) => (
-  <Document>
-    <Page size={{ width: '210mm', height: '148mm' }} style={styles.page}>
+const Certificate=({data,selectedProgram,index})=>(  <Page size={{ width: '210mm', height: '148mm' }} style={styles.page}>
       <View style={styles.outerBorder}>
         <Text style={styles.serialNumber}>{data?.registrationNumber}</Text>
         <View style={styles.innerBorder}>
@@ -379,7 +374,7 @@ const CertificateServerSide = ({data,selectedProgram,fontPath}) => (
             <View style={styles.row}>
               <View style={styles.fieldGroup}>
                 <Text style={styles.label}>नाम:</Text>
-                <Text style={[styles.value, { minWidth: 150 }]}>{data?.displayName || '---'}</Text>
+                <Text style={[styles.value, { minWidth: 150 }]}> {fixHindiText(data?.displayName || '---') } {" "}</Text>
               </View>
               <View style={styles.fieldGroup}>
                 <Text style={styles.label}>पिता/पति का नाम:</Text>
@@ -471,8 +466,24 @@ const CertificateServerSide = ({data,selectedProgram,fontPath}) => (
           </View>
         </View>
       </View>
-    </Page>
+    </Page>)
+    
+const CertificateServerSide = ({data,selectedProgram,fontPath}) => {
+    const membersArray = Array.isArray(data) ? data : [data];
+  return   (
+  <Document>
+   {membersArray.map((member, index) => (
+        <Certificate 
+          key={member?.id || member?.registrationNumber || index}
+          data={member}
+          selectedProgram={selectedProgram}
+          index={index}
+        />
+      ))}
   </Document>
 );
+}
+  
+
 
 export default CertificateServerSide;
