@@ -322,11 +322,8 @@ function formatNumber(num) {
   }
 }
 
-
-const RegFormPdf = ({data, selectedProgram}) => {
-  return (
-    <Document>
-      <Page size="A5" orientation="portrait" style={styles.page}>
+const RegFormPage = ({ data, selectedProgram }) => (
+        <Page size="A5" orientation="portrait" style={styles.page}>
         <View style={styles.outerBorder}>
           <Text style={styles.serialNumber}>{data.registrationNumber}</Text>
           <View style={styles.innerBorder}>
@@ -544,6 +541,17 @@ const RegFormPdf = ({data, selectedProgram}) => {
           </View>
         </View>
       </Page>
+)
+
+const RegFormPdf = ({data, selectedProgram}) => {
+    const membersArray = Array.isArray(data) ? data : [data];
+  return (
+    <Document>
+      {
+        membersArray.map((member, index) => (
+          <RegFormPage key={index} data={member} selectedProgram={selectedProgram} />
+        ))
+      }
     </Document>
   );
 };

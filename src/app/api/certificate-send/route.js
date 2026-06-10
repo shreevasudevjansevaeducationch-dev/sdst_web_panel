@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import CertificateServerSide from "@/components/pdfcom/Certificates/CertificateComServerSide";
 import { renderToBuffer } from "@react-pdf/renderer";
+import RegFormPdf from "@/components/pdfcom/MemberRegFormPdf/RegFromPdf";
 
 export const runtime = "nodejs";
 
@@ -19,15 +20,26 @@ export async function OPTIONS() {
 
 export async function POST(req) {
   try {
-    const { memberData, selectedProgram } = await req.json();
+    const { memberData, selectedProgram,isRegForm=false } = await req.json();
 
+      let buffer;
     // ✅ CORRECT BUFFER
-    const buffer = await renderToBuffer(
+    if(isRegForm){
+     buffer = await renderToBuffer(
+      <RegFormPdf
+        data={memberData}
+        selectedProgram={selectedProgram}
+      />
+    );
+    }else{
+     buffer = await renderToBuffer(
       <CertificateServerSide
         data={memberData}
         selectedProgram={selectedProgram}
       />
     );
+    
+    }
 
     // 🔍 Debug (optional)
     console.log("PDF buffer size:", buffer.length);
