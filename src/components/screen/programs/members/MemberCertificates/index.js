@@ -28,6 +28,7 @@ const MemberCertificateCom = ({
         onClose={onClose}
         open={open}
         maskClosable={false}
+        destroyOnHidden={true}
         keyboard={false}
         footer={
           <Space style={{ float: 'right' }}>
