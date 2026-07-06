@@ -8,13 +8,14 @@ import {
 } from 'ag-grid-community';
 import {
     EyeOutlined, EditOutlined, PlusCircleOutlined, FilterOutlined,
-    ClearOutlined, CalendarOutlined, FilePdfOutlined, DownloadOutlined
+    ClearOutlined, CalendarOutlined, FilePdfOutlined, DownloadOutlined,
+    UserOutlined
 } from '@ant-design/icons';
 import { MdOutlinePendingActions } from 'react-icons/md';
 import { GrCertificate } from 'react-icons/gr';
 import {
     Avatar, Button, Dropdown, Tag, Tooltip, Select,
-    DatePicker, Modal, Badge, Divider, message
+    DatePicker, Modal, Badge, Divider, message, Popover
 } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { getData } from '@/lib/services/firebaseService';
@@ -130,6 +131,9 @@ const MemberList = () => {
     // download states — separate for certificate vs reg form
     const [isCertDownloading,     setIsCertDownloading]     = useState(false);
     const [isRegFormDownloading,  setIsRegFormDownloading]  = useState(false);
+
+    // members count popover
+    const [isCountPopoverOpen,    setIsCountPopoverOpen]    = useState(false);
 
     const dispatch           = useDispatch();
     const memberStatusChange = useSelector(s => s.data.getMemberDataChange);
@@ -542,6 +546,33 @@ const MemberList = () => {
             ? 'Generating reg forms…'
             : 'Download';
 
+    // ── members count popover content ────────────────────────────────────────
+    const membersCountContent = (
+        <div className="p-2 min-w-[200px]">
+            <div className="text-sm font-semibold text-gray-800 mb-2 border-b pb-2">
+                Members Summary
+            </div>
+            <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Total Members</span>
+                    <span className="font-semibold text-blue-600">{allMembersData.length}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Filtered Members</span>
+                    <span className="font-semibold text-green-600">{filteredMembersData.length}</span>
+                </div>
+                {activeFilterCount > 0 && (
+                    <div className="flex justify-between items-center text-xs text-gray-500 border-t pt-2 mt-1">
+                        <span>Active Filters</span>
+                        <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                            {activeFilterCount}
+                        </span>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+
     // ── render ─────────────────────────────────────────────────────────────────
     return (
         <div>
@@ -607,9 +638,22 @@ const MemberList = () => {
 
                 {/* Right: member count + Export PDF + Download dropdown */}
                 <div className="flex items-center gap-2">
-                    <Tag color="blue" className="text-sm font-medium h-7 flex items-center m-0 px-3">
-                        {filteredMembersData.length} members
-                    </Tag>
+                    {/* Members Count Button with Popover */}
+                    <Popover
+                        content={membersCountContent}
+                        trigger="click"
+                        open={isCountPopoverOpen}
+                        onOpenChange={setIsCountPopoverOpen}
+                        placement="bottomRight"
+                        overlayClassName="members-count-popover"
+                    >
+                        <Button
+                            icon={<UserOutlined />}
+                            className="flex items-center gap-1.5 h-9 px-4 rounded-lg bg-blue-50 border-blue-300 text-blue-700 hover:bg-blue-100 hover:border-blue-400 font-medium"
+                        >
+                            Members
+                        </Button>
+                    </Popover>
 
                     {/* Export PDF */}
                     <Button

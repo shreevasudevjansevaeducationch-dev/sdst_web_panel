@@ -378,3 +378,7 @@ button:focus {
 .ant-input-number-input {
   width: 100% !important;
 }
+
+#ag-8-row-count{
+  display: none !important;
+}
