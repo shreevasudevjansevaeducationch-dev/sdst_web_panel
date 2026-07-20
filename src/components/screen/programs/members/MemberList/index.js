@@ -8,14 +8,13 @@ import {
 } from 'ag-grid-community';
 import {
     EyeOutlined, EditOutlined, PlusCircleOutlined, FilterOutlined,
-    ClearOutlined, CalendarOutlined, FilePdfOutlined, DownloadOutlined,
-    UserOutlined
+    ClearOutlined, CalendarOutlined, FilePdfOutlined, DownloadOutlined
 } from '@ant-design/icons';
 import { MdOutlinePendingActions } from 'react-icons/md';
 import { GrCertificate } from 'react-icons/gr';
 import {
     Avatar, Button, Dropdown, Tag, Tooltip, Select,
-    DatePicker, Modal, Badge, Divider, message, Popover
+    DatePicker, Modal, Badge, Divider, message
 } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { getData } from '@/lib/services/firebaseService';
@@ -33,6 +32,7 @@ import isBetween from 'dayjs/plugin/isBetween';
 import { fetchSingleMemberMarriageReport } from '@/lib/helper';
 import MemberPaymentDetails from './MemberPaymentDetails';
 import MemberExportPDF from './MemberExportPDF';
+import JoinFeesMemberList from './JoinFeesCom/JoinFeesMemberList';
 
 dayjs.extend(isBetween);
 
@@ -66,18 +66,18 @@ const GENDER_OPTIONS = [
 ];
 
 const JOIN_FEES_OPTIONS = [
-    { value: 'all',     label: 'All members'       },
-    { value: 'pending', label: 'Join fees pending' },
-    { value: 'paid',    label: 'Join fees paid'    },
+    { value: 'all',     label: 'All members'         },
+    { value: 'pending', label: 'Join fees pending'   },
+    { value: 'paid',    label: 'Join fees paid'      },
 ];
 
 // ── helpers ────────────────────────────────────────────────────────────────────
 const countActive = ({ gender, agent, dateRange, joinFees }) => {
     let n = 0;
-    if (gender   !== 'all') n++;
-    if (agent)              n++;
-    if (dateRange)          n++;
-    if (joinFees !== 'all') n++;
+    if (gender   !== 'all')  n++;
+    if (agent)               n++;
+    if (dateRange)           n++;
+    if (joinFees !== 'all')  n++;
     return n;
 };
 
@@ -93,47 +93,45 @@ const buildFilterLabel = ({ statusFilter, genderFilter, selectedAgentFilter, dat
 // ── main component ─────────────────────────────────────────────────────────────
 const MemberList = () => {
     // data
-    const [allMembersData,        setAllMembersData]        = useState([]);
-    const [filteredMembersData,   setFilteredMembersData]   = useState([]);
-    const [isLoading,             setIsLoading]             = useState(false);
+    const [allMembersData,       setAllMembersData]       = useState([]);
+    const [filteredMembersData,  setFilteredMembersData]  = useState([]);
+    const [isLoading,            setIsLoading]            = useState(false);
 
     // selection / sub-modals
-    const [selectedMember,        setSelectedMember]        = useState(null);
-    const [isDetailsView,         setIsDetailsView]         = useState(false);
-    const [isEditmemberOpen,      setIsEditmemberOpen]      = useState(false);
-    const [isCertModalOpen,       setIsCertModalOpen]       = useState(false);
-    const [isOpenRegModal,        setIsOpenRegModal]        = useState(false);
-    const [isOpenClosingForm,     setIsOpenClosingForm]     = useState(false);
-    const [isPaymentDetailsOpen,  setIsPaymentDetailsOpen]  = useState(false);
-    const [paymentReport,         setPaymentReport]         = useState(null);
-    const [loadingReport,         setLoadingReport]         = useState(false);
+    const [selectedMember,       setSelectedMember]       = useState(null);
+    const [isDetailsView,        setIsDetailsView]        = useState(false);
+    const [isEditmemberOpen,     setIsEditmemberOpen]     = useState(false);
+    const [isCertModalOpen,      setIsCertModalOpen]      = useState(false);
+    const [isOpenRegModal,       setIsOpenRegModal]       = useState(false);
+    const [isOpenClosingForm,    setIsOpenClosingForm]    = useState(false);
+    const [isPaymentDetailsOpen, setIsPaymentDetailsOpen] = useState(false);
+    const [paymentReport,        setPaymentReport]        = useState(null);
+    const [loadingReport,        setLoadingReport]        = useState(false);
 
     // export PDF modal
-    const [isExportOpen,          setIsExportOpen]          = useState(false);
+    const [isExportOpen,         setIsExportOpen]         = useState(false);
 
     // filter modal
-    const [isFilterModalOpen,     setIsFilterModalOpen]     = useState(false);
+    const [isFilterModalOpen,    setIsFilterModalOpen]    = useState(false);
 
     // committed filter values
-    const [statusFilter,          setStatusFilter]          = useState('active');
-    const [genderFilter,          setGenderFilter]          = useState('all');
-    const [selectedAgentFilter,   setSelectedAgentFilter]   = useState(null);
-    const [dateRange,             setDateRange]             = useState(null);
-    const [joinFeesFilter,        setJoinFeesFilter]        = useState('all');
+    const [statusFilter,         setStatusFilter]         = useState('active');
+    const [genderFilter,         setGenderFilter]         = useState('all');
+    const [selectedAgentFilter,  setSelectedAgentFilter]  = useState(null);
+    const [dateRange,            setDateRange]            = useState(null);
+    const [joinFeesFilter,       setJoinFeesFilter]       = useState('all');
 
     // draft values (inside modal)
-    const [draftStatus,           setDraftStatus]           = useState('active');
-    const [draftGender,           setDraftGender]           = useState('all');
-    const [draftAgent,            setDraftAgent]            = useState(null);
-    const [draftDateRange,        setDraftDateRange]        = useState(null);
-    const [draftJoinFees,         setDraftJoinFees]         = useState('all');
+    const [draftStatus,          setDraftStatus]          = useState('active');
+    const [draftGender,          setDraftGender]          = useState('all');
+    const [draftAgent,           setDraftAgent]           = useState(null);
+    const [draftDateRange,       setDraftDateRange]       = useState(null);
+    const [draftJoinFees,        setDraftJoinFees]        = useState('all');
 
-    // download states — separate for certificate vs reg form
-    const [isCertDownloading,     setIsCertDownloading]     = useState(false);
-    const [isRegFormDownloading,  setIsRegFormDownloading]  = useState(false);
+    const [JoinFeesMemberListOpen, setJoinFeesMemberListOpen] = useState(false);
+    
+    const [isCertDownloading, setIsCertDownloading] = useState(false);
 
-    // members count popover
-    const [isCountPopoverOpen,    setIsCountPopoverOpen]    = useState(false);
 
     const dispatch           = useDispatch();
     const memberStatusChange = useSelector(s => s.data.getMemberDataChange);
@@ -149,7 +147,7 @@ const MemberList = () => {
 
     const activeFilterCount = countActive({
         gender: genderFilter, agent: selectedAgentFilter,
-        dateRange, joinFees: joinFeesFilter,
+        dateRange, joinFees: joinFeesFilter
     });
 
     const defaultColDef = { sortable: true, filter: true, resizable: true, flex: 1, minWidth: 100 };
@@ -220,7 +218,7 @@ const MemberList = () => {
             const end   = dr[1].endOf('day');
             out = out.filter(m => {
                 if (!m.dateJoin) return false;
-                const d = dayjs(m.dateJoin, ['DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD', undefined]);
+                const d = dayjs(m.dateJoin, ['DD/MM/YYYY','MM/DD/YYYY','YYYY-MM-DD', undefined]);
                 return d.isValid() && d.isBetween(start, end, null, '[]');
             });
         }
@@ -268,7 +266,7 @@ const MemberList = () => {
         setIsPaymentDetailsOpen(true);
         try {
             const res = await fetchSingleMemberMarriageReport({
-                userId: user.uid, programId: selectedProgram.id, memberId: data.id,
+                userId: user.uid, programId: selectedProgram.id, memberId: data.id
             });
             setPaymentReport(res);
         } catch (e) {
@@ -282,12 +280,17 @@ const MemberList = () => {
     // ── draft preview count ────────────────────────────────────────────────────
     const previewCount = applyFilters(allMembersData, {
         status: draftStatus, gender: draftGender, agent: draftAgent,
-        dateRange: draftDateRange, joinFees: draftJoinFees,
+        dateRange: draftDateRange, joinFees: draftJoinFees
     }).length;
 
     const draftActiveCount = countActive({
         gender: draftGender, agent: draftAgent,
-        dateRange: draftDateRange, joinFees: draftJoinFees,
+        dateRange: draftDateRange, joinFees: draftJoinFees
+    });
+
+    // ── build active chip labels for toolbar ───────────────────────────────────
+    const activeChips = buildFilterLabel({
+        statusFilter, genderFilter, selectedAgentFilter, dateRange, joinFeesFilter, agentsList
     });
 
     // ── current filter summary string (for PDF header) ─────────────────────────
@@ -299,58 +302,6 @@ const MemberList = () => {
         if (dateRange)                parts.push(`Date: ${dateRange[0]?.format('DD/MM/YYYY')} – ${dateRange[1]?.format('DD/MM/YYYY')}`);
         return parts.join(' · ');
     })();
-
-    // ── unified document downloader (certificate OR reg form) ─────────────────
-    const downloadMultipleDocuments = async (membersArray, program, isRegForm = false) => {
-        if (!membersArray || membersArray.length === 0) {
-            message.warning('No members selected');
-            return;
-        }
-
-        const setLoading  = isRegForm ? setIsRegFormDownloading : setIsCertDownloading;
-        const loadingKey  = isRegForm ? 'reg-form-dl' : 'cert-dl';
-        const loadingText = isRegForm ? 'Generating registration forms…' : 'Generating certificates…';
-        const successText = isRegForm ? 'Registration forms ready!' : 'Certificates ready!';
-        const errorText   = isRegForm ? 'Failed to generate registration forms.' : 'Failed to generate certificates.';
-
-        setLoading(true);
-        message.loading({ content: loadingText, key: loadingKey, duration: 0 });
-
-        const membersData = membersArray.map(member => ({
-            ...member,
-            agentPhone: agentsList?.find(a => a.id === member.agentId)?.phone || 'N/A',
-        }));
-
-        try {
-            const response = await fetch('/api/certificate-send', {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify({
-                    memberData:      membersData,
-                    selectedProgram: program,
-                    isRegForm,
-                }),
-            });
-
-            const data         = await response.json();
-            const binaryString = atob(data.base64);
-            const bytes        = new Uint8Array(binaryString.length);
-            for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-            const blob = new Blob([bytes], { type: 'application/pdf' });
-            const url  = URL.createObjectURL(blob);
-            window.open(url, '_blank');
-            setTimeout(() => URL.revokeObjectURL(url), 100);
-
-            message.success({ content: successText, key: loadingKey });
-        } catch (error) {
-            console.error('Download error:', error);
-            message.error({ content: errorText, key: loadingKey });
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const isAnyDownloading = isCertDownloading || isRegFormDownloading;
 
     // ── column defs ────────────────────────────────────────────────────────────
     const COL_DEFS = [
@@ -373,24 +324,28 @@ const MemberList = () => {
                         </span>
                     </div>
                 </div>
-            ),
+            )
         },
-        { field: 'fatherName',        headerName: 'Father Name', width: 150, cellDataType: 'text' },
-        { field: 'jati',              headerName: 'Surname',     width: 150, cellDataType: 'text' },
+        { field: 'fatherName',        headerName: 'Father Name',         width: 150, cellDataType: 'text' },
+        { field: 'jati',              headerName: 'Surname',             width: 150, cellDataType: 'text' },
         {
             field: 'registrationNumber', headerName: 'Reg. Number', cellDataType: 'text',
-            cellRenderer: ({ data }) => <div className="font-semibold">{data.registrationNumber || '—'}</div>,
+            cellRenderer: ({ data }) => <div className="font-semibold">{data.registrationNumber || '—'}</div>
         },
-        { field: 'phone',  headerName: 'Phone',  width: 120, cellDataType: 'text' },
+        {
+            field: 'applicationNo', headerName: 'App. No.', width: 110, cellDataType: 'number',
+            cellRenderer: ({ data }) => <div className="font-semibold text-blue-600">{data.applicationNo || '—'}</div>
+        },
+        { field: 'phone', headerName: 'Phone', width: 120, cellDataType: 'text' },
         {
             field: 'gender', headerName: 'Gender', width: 100,
             cellRenderer: ({ data }) => {
                 const g = data.gender;
                 if (!g) return '—';
                 return <Tag color={g === 'male' ? 'blue' : g === 'female' ? 'pink' : 'default'} className="capitalize">{g}</Tag>;
-            },
+            }
         },
-        { field: 'state',       headerName: 'State',      width: 100, cellDataType: 'text' },
+        { field: 'village',       headerName: 'Village',      width: 100, cellDataType: 'text' },
         { field: 'addedByName', headerName: 'Created By', cellRenderer: ({ data }) => <div>{data.addedByName}</div> },
         { field: 'aadhaarNo',   headerName: 'Aadhaar No', cellDataType: 'text' },
         {
@@ -400,7 +355,7 @@ const MemberList = () => {
                     <div className={`h-2 w-2 rounded-full ${data.processedColorClass}`} />
                     <span>{data.payAmount}</span>
                 </div>
-            ),
+            )
         },
         {
             field: 'joinFeesDone', headerName: 'Join Fees', width: 120,
@@ -408,12 +363,12 @@ const MemberList = () => {
                 data.joinFeesDone
                     ? <Tag color="green">Paid</Tag>
                     : <Tag color="red">Pending</Tag>
-            ),
+            )
         },
         { field: 'ageGroupRange', headerName: 'Age Group', width: 130, cellDataType: 'text' },
         {
             field: 'createdAt', headerName: 'Join Date', width: 130,
-            cellRenderer: ({ data }) => data.dateJoin || '—',
+            cellRenderer: ({ data }) => data.dateJoin || '—'
         },
         {
             field: 'Action', headerName: 'Action', pinned: 'right', width: 150, filter: false,
@@ -489,104 +444,78 @@ const MemberList = () => {
                         </Dropdown>
                     </div>
                 );
-            },
+            }
         },
     ];
+  const downloadMultipleCertificates = async (membersArray, selectedProgram) => {
+        if (!membersArray || membersArray.length === 0) {
+            message.warning('No members selected for certificate download');
+            return;
+        }
 
-    // ── download dropdown menu items ───────────────────────────────────────────
-    const downloadMenuItems = [
-        {
-            key: 'certificate',
-            disabled: isAnyDownloading,
-            label: (
-                <div className="flex items-center gap-2 py-1 min-w-[180px]">
-                    <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-green-50 border border-green-200 text-green-600 text-sm flex-shrink-0">
-                        <GrCertificate />
-                    </span>
-                    <div className="flex flex-col">
-                        <span className="text-sm font-medium text-gray-800">Certificates</span>
-                        <span className="text-xs text-gray-400">Download as PDF</span>
-                    </div>
-                    {isCertDownloading && (
-                        <span className="ml-auto flex-shrink-0">
-                            <span className="inline-block w-3.5 h-3.5 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
-                        </span>
-                    )}
-                </div>
-            ),
-            onClick: () => downloadMultipleDocuments(filteredMembersData, selectedProgram, false),
-        },
-        {
-            key: 'regform',
-            disabled: isAnyDownloading,
-            label: (
-                <div className="flex items-center gap-2 py-1 min-w-[180px]">
-                    <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-blue-50 border border-blue-200 text-blue-600 text-sm flex-shrink-0">
-                        <FaFile />
-                    </span>
-                    <div className="flex flex-col">
-                        <span className="text-sm font-medium text-gray-800">Registration Forms</span>
-                        <span className="text-xs text-gray-400">Download as PDF</span>
-                    </div>
-                    {isRegFormDownloading && (
-                        <span className="ml-auto flex-shrink-0">
-                            <span className="inline-block w-3.5 h-3.5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                        </span>
-                    )}
-                </div>
-            ),
-            onClick: () => downloadMultipleDocuments(filteredMembersData, selectedProgram, true),
-        },
-    ];
+        setIsCertDownloading(true);
+        const loadingMessage = message.loading('Generating certificates, please wait...', 0);
 
-    // ── download button label ──────────────────────────────────────────────────
-    const downloadButtonLabel = isCertDownloading
-        ? 'Generating certificates…'
-        : isRegFormDownloading
-            ? 'Generating reg forms…'
-            : 'Download';
+        const membersData = membersArray.map(member => ({
+            ...member,
+            agentPhone: agentsList?.find(a => a.id === member.agentId)?.phone || 'N/A',
+            agentCode: agentsList?.find(a => a.id === member.agentId)?.agentCode
+        }));
 
-    // ── members count popover content ────────────────────────────────────────
-    const membersCountContent = (
-        <div className="p-2 min-w-[200px]">
-            <div className="text-sm font-semibold text-gray-800 mb-2 border-b pb-2">
-                Members Summary
-            </div>
-            <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Total Members</span>
-                    <span className="font-semibold text-blue-600">{allMembersData.length}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Filtered Members</span>
-                    <span className="font-semibold text-green-600">{filteredMembersData.length}</span>
-                </div>
-                {activeFilterCount > 0 && (
-                    <div className="flex justify-between items-center text-xs text-gray-500 border-t pt-2 mt-1">
-                        <span>Active Filters</span>
-                        <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                            {activeFilterCount}
-                        </span>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
+        try {
+            const response = await fetch('/api/certificate-send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    memberData: membersData,
+                    selectedProgram: selectedProgram
+                }),
+            });
 
+            const data = await response.json();
+            
+            const binaryString = atob(data.base64);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            
+            const blob = new Blob([bytes], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+            
+            // Open in new tab instead of downloading
+            window.open(url, '_blank');
+            
+            // Clean up after a delay
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+            }, 100);
+            
+            message.success('Certificate generated successfully!');
+            
+        } catch (error) {
+            console.error('Error:', error);
+            message.error('Failed to generate certificates. Please try again.');
+        } finally {
+            loadingMessage();
+            setIsCertDownloading(false);
+        }
+    };
     // ── render ─────────────────────────────────────────────────────────────────
     return (
         <div>
             {/* ── Toolbar ──────────────────────────────────────────────────── */}
             <div className="flex items-center justify-between mb-3 gap-3 flex-wrap bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-sm">
-
-                {/* Left: filter button + active chips */}
                 <div className="flex items-center gap-2 flex-wrap">
+                    {/* Filter button */}
                     <Badge count={activeFilterCount} size="small" offset={[-4, 4]}
                         style={{ backgroundColor: '#2563EB' }}>
                         <Button
                             icon={<FilterOutlined />}
                             onClick={openFilterModal}
-                            className={`flex items-center gap-1.5 h-9 px-4 rounded-lg font-medium transition-colors ${
+                            className={`flex items-center gap-1.5 h-9 px-4 rounded-lg font-medium ${
                                 activeFilterCount > 0
                                     ? 'bg-blue-50 border-blue-300 text-blue-700 hover:bg-blue-100'
                                     : 'bg-white border-gray-300 text-gray-700'
@@ -596,6 +525,7 @@ const MemberList = () => {
                         </Button>
                     </Badge>
 
+                    {/* Active chips */}
                     {genderFilter !== 'all' && (
                         <Tag closable onClose={() => removeFilter('gender')}
                             color={genderFilter === 'male' ? 'blue' : 'pink'}
@@ -624,38 +554,33 @@ const MemberList = () => {
                     )}
                     {activeFilterCount > 0 && (
                         <Button size="small" type="link" icon={<ClearOutlined />}
-                            onClick={() => {
-                                setGenderFilter('all');
-                                setSelectedAgentFilter(null);
-                                setDateRange(null);
-                                setJoinFeesFilter('all');
-                            }}
+                            onClick={() => { setGenderFilter('all'); setSelectedAgentFilter(null); setDateRange(null); setJoinFeesFilter('all'); }}
                             className="text-gray-400 hover:text-red-500 px-1 text-xs">
                             Clear all
                         </Button>
                     )}
                 </div>
 
-                {/* Right: member count + Export PDF + Download dropdown */}
+                {/* Right side: count + export */}
                 <div className="flex items-center gap-2">
-                    {/* Members Count Button with Popover */}
-                    <Popover
-                        content={membersCountContent}
-                        trigger="click"
-                        open={isCountPopoverOpen}
-                        onOpenChange={setIsCountPopoverOpen}
-                        placement="bottomRight"
-                        overlayClassName="members-count-popover"
+                    <Tag color="blue" className="text-sm font-medium h-7 flex items-center m-0">
+                        {filteredMembersData.length} members
+                    </Tag>
+                    <Button 
+                        className="flex items-center gap-1.5 h-9 px-4 rounded-lg bg-red-50 border-red-300 text-red-600 hover:bg-red-100 hover:border-red-400 font-medium"
+                    onClick={() => setJoinFeesMemberListOpen(true)}
                     >
-                        <Button
-                            icon={<UserOutlined />}
-                            className="flex items-center gap-1.5 h-9 px-4 rounded-lg bg-blue-50 border-blue-300 text-blue-700 hover:bg-blue-100 hover:border-blue-400 font-medium"
-                        >
-                            Members
-                        </Button>
-                    </Popover>
-
-                    {/* Export PDF */}
+                        Join Fees List
+                    </Button>
+                     <Button
+                        icon={<FilePdfOutlined />}
+                        onClick={() => downloadMultipleCertificates(filteredMembersData, selectedProgram)}
+                        loading={isCertDownloading}
+                        disabled={isCertDownloading || filteredMembersData.length === 0}
+                        className="flex items-center gap-1.5 h-9 px-4 rounded-lg bg-green-50 border-green-300 text-green-600 hover:bg-green-100 hover:border-green-400 font-medium"
+                    >
+                        {isCertDownloading ? 'Generating...' : 'Download Certificates'}
+                    </Button>
                     <Button
                         icon={<FilePdfOutlined />}
                         onClick={() => setIsExportOpen(true)}
@@ -663,26 +588,6 @@ const MemberList = () => {
                     >
                         Export PDF
                     </Button>
-
-                    {/* Download dropdown — Certificate / Reg Form */}
-                    <Dropdown
-                        menu={{ items: downloadMenuItems }}
-                        trigger={['click']}
-                        placement="bottomRight"
-                        disabled={filteredMembersData.length === 0}
-                    >
-                        <Button
-                            loading={isAnyDownloading}
-                            disabled={filteredMembersData.length === 0}
-                            className="flex items-center gap-1.5 h-9 px-4 rounded-lg bg-green-50 border-green-300 text-green-700 hover:bg-green-100 hover:border-green-400 font-medium"
-                        >
-                            {!isAnyDownloading && <DownloadOutlined />}
-                            {downloadButtonLabel}
-                            {!isAnyDownloading && (
-                                <span className="text-green-400 text-xs ml-0.5">▾</span>
-                            )}
-                        </Button>
-                    </Dropdown>
                 </div>
             </div>
 
@@ -844,10 +749,10 @@ const MemberList = () => {
                             Selected filters
                         </p>
                         <div className="flex flex-wrap gap-2 min-h-7">
-                            {draftStatus !== 'active' && <Tag color="red"    className="text-xs">{STATUS_OPTIONS.find(o => o.value === draftStatus)?.label}</Tag>}
-                            {draftGender !== 'all'    && <Tag color={draftGender === 'male' ? 'blue' : 'pink'} className="text-xs capitalize">{draftGender}</Tag>}
-                            {draftAgent               && <Tag color="purple" className="text-xs">Agent: {agentsList?.find(a => a.id === draftAgent)?.displayName || draftAgent}</Tag>}
-                            {draftJoinFees !== 'all'  && <Tag color={draftJoinFees === 'pending' ? 'red' : 'green'} className="text-xs">{draftJoinFees === 'pending' ? 'Fees Pending' : 'Fees Paid'}</Tag>}
+                            {draftStatus !== 'active' && <Tag color="red" className="text-xs">{STATUS_OPTIONS.find(o=>o.value===draftStatus)?.label}</Tag>}
+                            {draftGender !== 'all'    && <Tag color={draftGender==='male'?'blue':'pink'} className="text-xs capitalize">{draftGender}</Tag>}
+                            {draftAgent               && <Tag color="purple" className="text-xs">Agent: {agentsList?.find(a=>a.id===draftAgent)?.displayName||draftAgent}</Tag>}
+                            {draftJoinFees!=='all'     && <Tag color={draftJoinFees==='pending'?'red':'green'} className="text-xs">{draftJoinFees==='pending'?'Fees Pending':'Fees Paid'}</Tag>}
                             {draftDateRange           && <Tag color="orange" className="text-xs">{draftDateRange[0]?.format('DD/MM/YY')} – {draftDateRange[1]?.format('DD/MM/YY')}</Tag>}
                             {draftActiveCount === 0 && draftStatus === 'active' && (
                                 <span className="text-xs text-gray-400 italic">No additional filters</span>
@@ -878,6 +783,10 @@ const MemberList = () => {
                 filterSummary={filterSummary}
                 programName={selectedProgram?.name || ''}
             />
+            {
+                JoinFeesMemberListOpen &&   <JoinFeesMemberList onSuccess={onGridReady} selectedProgram={selectedProgram} agentData={agentsList?.find(a => a.id === draftAgent)} membersData={filteredMembersData} open={JoinFeesMemberListOpen} onClose={() => setJoinFeesMemberListOpen(false)} />
+            }
+          
 
             {/* ── member modals ─────────────────────────────────────────────── */}
             <MemberDetailsView

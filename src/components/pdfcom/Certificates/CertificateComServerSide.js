@@ -282,6 +282,11 @@ logoImage: {
      fontWeight: 'bold',
      letterSpacing: 0.2,
       marginBottom: 3,
+  },
+      remarkBox:{
+    position: 'absolute',
+    bottom: 90,
+    right: -20,
   }
 });
 
@@ -352,7 +357,15 @@ const Certificate=({data,selectedProgram,index})=>(  <Page size={{ width: '210mm
               </View>
             )}
           </View>
+          {data.joinFees > 0 && (
+  <View style={styles.remarkBox}>
+      <View style={[styles.fieldGroup, { marginLeft: 20,marginRight:40 }]}>
+                <Text style={styles.label}>सदस्यता शुल्क:</Text>
+                <Text style={[styles.value, { minWidth: 60 }]}>₹{data?.joinFees || '---'}</Text>
+              </View>
 
+  </View>
+)}
           {/* Form Section */}
           <View style={styles.formSection}>
             {/* Row 1 */}
@@ -433,7 +446,7 @@ const Certificate=({data,selectedProgram,index})=>(  <Page size={{ width: '210mm
                 <Text style={[styles.value, { minWidth: 70}]}>
                   {data?.payAmount || '0'}/-
                 </Text>
-                <Text style={styles.label}>रुपये</Text>
+                {/* <Text style={styles.label}>रुपये</Text> */}
               </View>
             </View>
           </View>
