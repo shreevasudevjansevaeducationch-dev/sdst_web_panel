@@ -506,6 +506,11 @@ const MemberList = () => {
     // ── render ─────────────────────────────────────────────────────────────────
     return (
         <div>
+        <style>{`
+        .ag-paging-row-summary-panel-number{
+            display: none !important;
+            }
+        `}</style>
             {/* ── Toolbar ──────────────────────────────────────────────────── */}
             <div className="flex items-center justify-between mb-3 gap-3 flex-wrap bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-sm">
                 <div className="flex items-center gap-2 flex-wrap">
