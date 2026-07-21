@@ -8,7 +8,7 @@ import {
 } from 'ag-grid-community';
 import {
     EyeOutlined, EditOutlined, PlusCircleOutlined, FilterOutlined,
-    ClearOutlined, CalendarOutlined, FilePdfOutlined, DownloadOutlined
+    ClearOutlined, CalendarOutlined, FilePdfOutlined, DownloadOutlined, TeamOutlined
 } from '@ant-design/icons';
 import { MdOutlinePendingActions } from 'react-icons/md';
 import { GrCertificate } from 'react-icons/gr';
@@ -563,9 +563,12 @@ const MemberList = () => {
 
                 {/* Right side: count + export */}
                 <div className="flex items-center gap-2">
-                    <Tag color="blue" className="text-sm font-medium h-7 flex items-center m-0">
-                        {filteredMembersData.length} members
-                    </Tag>
+                    <Tooltip title={`${filteredMembersData.length} members`}>
+                        <div className="flex items-center gap-1 px-2 py-1 bg-blue-50 rounded-lg border border-blue-200">
+                            <TeamOutlined className="text-blue-500 text-sm" />
+                            <span className="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>
+                        </div>
+                    </Tooltip>
                     <Button 
                         className="flex items-center gap-1.5 h-9 px-4 rounded-lg bg-red-50 border-red-300 text-red-600 hover:bg-red-100 hover:border-red-400 font-medium"
                     onClick={() => setJoinFeesMemberListOpen(true)}
