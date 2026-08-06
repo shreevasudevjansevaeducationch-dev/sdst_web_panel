@@ -578,11 +578,11 @@ const MemberPayStatus = ({ agentId, agentInfo }) => {
 
   const getExportData = useCallback(() => {
     if (selectionMode === 'all') return filteredData;
+    console.log(filteredData,"filteredData")
     return filteredData.filter((m) => selectedMembers.includes(m.memberId));
   }, [selectionMode, filteredData, selectedMembers]);
 
-  const hasActiveFilters =
-    activeFilters.search || activeFilters.status || activeFilters.group;
+  const hasActiveFilters = activeFilters.search || activeFilters.status || activeFilters.group;
 
   if (loading && reportData.length === 0) {
     return (
