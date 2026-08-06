@@ -131,6 +131,7 @@ const MemberList = () => {
     const [JoinFeesMemberListOpen, setJoinFeesMemberListOpen] = useState(false);
     
     const [isCertDownloading, setIsCertDownloading] = useState(false);
+    const [isRegFormDownloading, setIsRegFormDownloading] = useState(false);
 
 
     const dispatch           = useDispatch();
@@ -503,6 +504,63 @@ const MemberList = () => {
             setIsCertDownloading(false);
         }
     };
+  const downloadMultipleRegForms = async (membersArray, selectedProgram) => {
+        if (!membersArray || membersArray.length === 0) {
+            message.warning('No members selected for Reg Form download');
+            return;
+        }
+
+        setIsRegFormDownloading(true);
+        const loadingMessage = message.loading('Generating Reg Forms, please wait...', 0);
+
+        const membersData = membersArray.map(member => ({
+            ...member,
+            agentPhone: agentsList?.find(a => a.id === member.agentId)?.phone || 'N/A',
+            agentCode: agentsList?.find(a => a.id === member.agentId)?.agentCode
+        }));
+
+        try {
+            const response = await fetch('/api/certificate-send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    memberData: membersData,
+                    selectedProgram: selectedProgram,
+                    isRegForm: true
+                }),
+            });
+
+            const data = await response.json();
+            
+            const binaryString = atob(data.base64);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            
+            const blob = new Blob([bytes], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+            
+            // Open in new tab instead of downloading
+            window.open(url, '_blank');
+            
+            // Clean up after a delay
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+            }, 100);
+            
+            message.success('Reg Forms generated successfully!');
+            
+        } catch (error) {
+            console.error('Error:', error);
+            message.error('Failed to generate Reg Forms. Please try again.');
+        } finally {
+            loadingMessage();
+            setIsRegFormDownloading(false);
+        }
+    };
     // ── render ─────────────────────────────────────────────────────────────────
     return (
         <div>
@@ -588,6 +646,15 @@ const MemberList = () => {
                         className="flex items-center gap-1.5 h-9 px-4 rounded-lg bg-green-50 border-green-300 text-green-600 hover:bg-green-100 hover:border-green-400 font-medium"
                     >
                         {isCertDownloading ? 'Generating...' : 'Download Certificates'}
+                    </Button>
+                    <Button
+                        icon={<FilePdfOutlined />}
+                        onClick={() => downloadMultipleRegForms(filteredMembersData, selectedProgram)}
+                        loading={isRegFormDownloading}
+                        disabled={isRegFormDownloading || filteredMembersData.length === 0}
+                        className="flex items-center gap-1.5 h-9 px-4 rounded-lg bg-purple-50 border-purple-300 text-purple-600 hover:bg-purple-100 hover:border-purple-400 font-medium"
+                    >
+                        {isRegFormDownloading ? 'Generating...' : 'Download Reg Forms'}
                     </Button>
                     <Button
                         icon={<FilePdfOutlined />}
