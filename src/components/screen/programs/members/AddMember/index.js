@@ -249,6 +249,7 @@ const AddMember = () => {
       guardian: member.guardian,
       gender: member.gender,
       guardianRelation: member.guardianRelation,
+      guardianVillage: member.guardianVillage || '',
       jati: member.jati,
       gotra: member.gotra || '',
       phone: member.phone,
@@ -565,6 +566,7 @@ const AddMember = () => {
         guardian: values.guardian,
         gender: values?.gender,
         guardianRelation: values.guardianRelation,
+        guardianVillage: values.guardianVillage || '',
         jati: values.jati,
         gotra: values.gotra || '',
         phone: values.phone,
@@ -807,7 +809,7 @@ const AddMember = () => {
                               setSelectedExistingMember(null);
                               setStoredBirthDate(null);
                               setStoredJoinDate(dayjs());
-                              form.resetFields(['displayName', 'fatherName', 'guardian', 'gender', 'guardianRelation', 
+                              form.resetFields(['displayName', 'fatherName', 'guardian', 'gender', 'guardianRelation', 'guardianVillage', 
                                 'jati', 'gotra', 'phone', 'phoneAlt', 'aadhaarNo', 'bobDate', 'currentAddress', 
                                 'village', 'state', 'district', 'pinCode']);
                               form.setFieldsValue({
@@ -900,6 +902,14 @@ const AddMember = () => {
                         </Select>
                       </Form.Item>
                     </div>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item
+                      name="guardianVillage"
+                      label="वारिसदार का गाँव"
+                    >
+                      <Input placeholder="वारिसदार के गाँव का नाम" />
+                    </Form.Item>
                   </Col>
                 </Row>
 

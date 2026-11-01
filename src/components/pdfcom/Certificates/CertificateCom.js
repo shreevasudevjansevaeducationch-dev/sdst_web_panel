@@ -441,11 +441,20 @@ const Certificate = ({ data, selectedProgram }) => (
             <View style={styles.row}>
               <View style={styles.fieldGroup}>
                 <Text style={styles.label}>जिला:</Text>
-                <Text style={[styles.value, { minWidth: 160 }]}>{data?.district || '---'}</Text>
+                <Text style={[styles.value, { minWidth: 120 }]}>{data?.district || '---'}</Text>
               </View>
               <View style={styles.fieldGroup}>
                 <Text style={styles.label}>राज्य:</Text>
-                <Text style={[styles.value, { minWidth: 180 }]}>{data?.state || '---'}</Text>
+                <Text style={[styles.value, { minWidth: 110 }]}>{data?.state || '---'}</Text>
+              </View>
+              <View style={styles.fieldGroup}>
+                <Text style={styles.label}>
+                  प्रत्येक {selectedProgram?.isSuraksha ? 'देहांत' : selectedProgram?.isMamera ? 'मायरा' : 'विवाह'} पर सहयोग राशि:
+                </Text>
+                <Text style={[styles.value, { minWidth: 60 }]}>
+                  {data?.payAmount || '0'}/-
+                </Text>
+                <Text style={styles.label}>रुपये</Text>
               </View>
             </View>
 
@@ -456,13 +465,8 @@ const Certificate = ({ data, selectedProgram }) => (
                 <Text style={[styles.value, { minWidth: 160 }]}>{data?.guardian || '---'}</Text>
               </View>
               <View style={styles.fieldGroup}>
-                <Text style={styles.label}>
-                  प्रत्येक {selectedProgram?.isSuraksha ? 'देहांत' : selectedProgram?.isMamera ? 'मायरा' : 'विवाह'} पर सहयोग राशि:
-                </Text>
-                <Text style={[styles.value, { minWidth: 70 }]}>
-                  {data?.payAmount || '0'}/-
-                </Text>
-                <Text style={styles.label}>रुपये</Text>
+                <Text style={styles.label}>वारिसदार का गाँव:</Text>
+                <Text style={[styles.value, { minWidth: 150 }]}>{data?.guardianVillage || '---'}</Text>
               </View>
             </View>
           </View>

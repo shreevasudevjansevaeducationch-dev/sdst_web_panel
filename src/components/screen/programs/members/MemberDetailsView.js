@@ -285,6 +285,7 @@ const columns = [
               <Descriptions.Item label="Date Joined">{selectedMember.dateJoin}</Descriptions.Item>
               <Descriptions.Item label="Guardian">{selectedMember.guardian}</Descriptions.Item>
               <Descriptions.Item label="Guardian Relation">{selectedMember.guardianRelation}</Descriptions.Item>
+              <Descriptions.Item label="Guardian Village (वारिसदार का गाँव)">{selectedMember.guardianVillage || '-'}</Descriptions.Item>
               <Descriptions.Item label="Alternative Phone">{selectedMember.alternativePhone || '-'}</Descriptions.Item>
               <Descriptions.Item label="Village">{selectedMember.village || '-'}</Descriptions.Item>
               <Descriptions.Item label="Current Address">{selectedMember.currentAddress}</Descriptions.Item>

@@ -179,6 +179,7 @@ const dateJoin = memberData.dateJoin?dayjs(memberData.dateJoin, 'DD-MM-YYYY'):da
         fatherName: memberData.fatherName,
         guardian: memberData.guardian,
         guardianRelation: memberData.guardianRelation,
+        guardianVillage: memberData.guardianVillage || '',
         gender:memberData.gender,
         jati: memberData.jati,
         gotra: memberData.gotra || '',
@@ -407,6 +408,7 @@ const handleDateOfBirthChange = (date) => {
         fatherName: values.fatherName,
         guardian: values.guardian,
         guardianRelation: values.guardianRelation,
+        guardianVillage: values.guardianVillage || '',
         gender:values.gender,
         jati: values.jati,
         gotra: values.gotra || '',
@@ -599,6 +601,11 @@ const handleDateOfBirthChange = (date) => {
                                     </Form.Item>
                                   </div>
                 
+              </Col>
+              <Col span={8}>
+                <Form.Item name="guardianVillage" label="वारिसदार का गाँव">
+                  <Input placeholder="वारिसदार के गाँव का नाम" />
+                </Form.Item>
               </Col>
             </Row>
 
